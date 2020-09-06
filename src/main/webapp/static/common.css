@@ -1,0 +1,22 @@
+input {
+    display: block;
+    align-self: left;
+}
+
+label {
+    padding-top: 10pt;
+    display: block;
+}
+
+form {
+    max-width: 250px;
+    margin: 0 auto;
+    text-align: left;
+}/**/
+
+.content {
+    max-width: 250px;
+    margin: auto;
+    text-align: center;
+    vertical-align: middle;
+}

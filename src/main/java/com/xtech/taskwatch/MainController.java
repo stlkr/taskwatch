@@ -1,39 +1,108 @@
 package com.xtech.taskwatch;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+import java.util.Optional;
+
+import com.xtech.taskwatch.model.Task;
+import com.xtech.taskwatch.model.TaskRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ViewResolver;
-import org.springframework.web.servlet.view.InternalResourceViewResolver;
-
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class MainController {
 
     @Autowired
-    private InternalResourceViewResolver resolver;
+    private TaskRepository taskRepo;
 
-    private String getField(String name) throws Exception {
-        Class c = resolver.getClass().getSuperclass();
-        System.out.println(c.getName());
-        Method f = c.getMethod(name, null);
-        f.setAccessible(true);
-        return (String) f.invoke(resolver);
+    private SimpleDateFormat dateFmt = new SimpleDateFormat("MM/dd/yyyy");
+
+    @GetMapping("/")
+    public String getTaskList(Map<String, Object> model, @RequestParam(required = false) String query) {
+        Iterable<Task> tasks;
+
+        String originalQuery = query;
+        
+        if (query == null)
+            query = "%";
+        else {
+            query = String.format("%%%s%%", query);
+        }
+
+        tasks = taskRepo.findByTaskDescriptionLike(query);
+        
+        model.put("tasks", tasks);
+        model.put("query", originalQuery);
+        return "index";
     }
-    
-    @GetMapping
-    public String getHello() throws Exception {
-        resolver.setPrefix("prefix");
-        System.out.printf("prefix: %s, suffix: %s\n", getField("getPrefix"), getField("getSuffix"));
-        return "hello";
+
+    @GetMapping("/edit/new")
+    public String getEdit(Map<String, Object> model) {
+        model.put("selDate", dateFmt.format(new Date()));
+        return "edit";
+    }
+
+    @GetMapping("/edit/existing")
+    public String getEdit(Map<String, Object> model, @RequestParam Long id) {
+        Optional<Task> task_opt = taskRepo.findById(id);
+        if (task_opt.isPresent()) {
+            Task task = task_opt.get();
+            model.put("name", task.getTaskName());
+            model.put("id", task.getId());
+            model.put("descr", task.getTaskDescription());
+
+            String s = dateFmt.format(task.getTaskEndDate());
+
+            model.put("selDate", s);
+            return "edit";
+        } else {
+            model.put("errMsg", "Указанная задача не найдена!");
+            return "error";
+        }
+    }
+
+    @PostMapping("/edit/update")
+    public String updateTask(Map<String, Object> model, @RequestParam Long id, @RequestParam String name,
+            @RequestParam String descr, @RequestParam Date selDate) {
+        Optional<Task> task_opt = taskRepo.findById(id);
+        if (!task_opt.isPresent()) {
+            model.put("errMsg", "Задача не найдена!");
+            return "error";
+        }
+
+        Task task = task_opt.get();
+        task.setTaskName(name);
+        task.setTaskDescription(descr);
+        task.setTaskEndDate(selDate);
+
+        taskRepo.save(task);
+
+        return "redirect:/";
+    }
+
+    @PostMapping("/edit/add")
+    public String addTask(@RequestParam String name, @RequestParam String descr, @RequestParam Date selDate) {
+        Task task = new Task(name, descr, selDate);
+        taskRepo.save(task);
+        return "redirect:/";
+    }
+
+    @GetMapping("/delete")
+    public String deleteTask(@RequestParam Long id) {
+        Optional<Task> task_opt = taskRepo.findById(id);
+        if (task_opt.isPresent())
+            taskRepo.delete(task_opt.get());
+
+        return "redirect:/";
     }
 
     @GetMapping("/error")
     public String GetError() {
-        return "hello";
+        return "redirect:hello";
     }
 }
