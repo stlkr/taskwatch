@@ -22,14 +22,14 @@
         <div class="container  h-100">
             <div class="row h-100">
                 <div class="col-sm-12 my-auto">
-                    <div class="card card-block w-25 mx-auto">
+                    <div class="card card-block w-50 mx-auto">
                         <c:if test="${param.error != null}">
                             <div class="d-flex justify-content-center">
                                 ${error}
                             </div>
                         </c:if>
-                        <form action="/loginnn" method="POST" class="card-body">
-                            <h4 class="card-title text-center">Вход</h4>
+                        <form action="/register/add" method="POST" class="card-body">
+                            <h4 class="card-title text-center">Регистрация</h4>
                             <div class="form-group">
                                 <label for="username">Имя пользователя:</label>
                                 <input type="text" name="username" id="username" class="form-control">
@@ -39,11 +39,11 @@
                                 <input type="password" name="password" id="password" class="form-control">
                             </div>
                             <div class="form-group">
-                                <input type="submit" value="Войти" class="form-control btn btn-primary">
+                                <label for="email">E-Mail:</label>
+                                <input type="email" name="email" id="email" class="form-control">
                             </div>
-
-                            <div class="d-flex justify-content-center">
-                                <a href="/register">Регистрация</a>
+                            <div class="form-group">
+                                <input type="submit" value="Зарегистрировать" class="form-control btn btn-primary">
                             </div>
                         </form>
                     </div>

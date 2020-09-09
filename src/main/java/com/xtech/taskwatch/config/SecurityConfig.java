@@ -21,11 +21,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
             .authorizeRequests()
                 .antMatchers("/").permitAll()
+                .antMatchers("/register").permitAll()
                 .anyRequest().authenticated()
             .and()
                 .formLogin()
                 .loginProcessingUrl("/loginnn")
                 .defaultSuccessUrl("/")
+                .usernameParameter("username")
+                .passwordParameter("password")
                 .loginPage("/loginn").permitAll()
                
             .and()
@@ -37,11 +40,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     @Override
     public UserDetailsService userDetailsService() {
-        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
         UserDetails user = 
             User.withDefaultPasswordEncoder()
                 .username("u")
-                .password(encoder.encode("p"))
+                .password("p")
                 .roles("user")
                 .build();
 
