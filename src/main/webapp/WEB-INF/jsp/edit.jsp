@@ -57,11 +57,11 @@
             <input type="text" class="form-control" name="selDate" id="datepicker" value="${selDate}" />
         </div>
         <c:if test="${not empty name}">
-            <input type="submit" class="form-control" value="Применить" />
+            <input type="submit" class="btn btn-primary form-control" value="Применить" />
         </c:if>
 
         <c:if test="${empty name}">
-            <input type="submit" class="form-control" value="Добавить" />
+            <input type="submit" class="btn btn-primary form-control" value="Добавить" />
         </c:if>
         </form>
     </div>

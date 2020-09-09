@@ -1,11 +1,24 @@
 package com.xtech.taskwatch.model;
 
+import java.util.Set;
+
+import javax.persistence.CollectionTable;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.Table;
+
+
 
 @Entity
+@Table(name = "users")
 public class User {
 
     @Id
@@ -17,6 +30,11 @@ public class User {
     private String email;
 
     private String password;
+
+    @ElementCollection(targetClass = UserRole.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    private Set<UserRole> userRoles;
 
     public String getUsername() {
         return username;
@@ -41,4 +59,13 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public Set<UserRole> getUserRoles() {
+        return userRoles;
+    }
+
+    public void setUserRoles(Set<UserRole> userRoles) {
+        this.userRoles = userRoles;
+    }
+
 }

@@ -3,9 +3,12 @@ package com.xtech.taskwatch.model;
 import java.util.Date;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
@@ -25,15 +28,19 @@ public class Task {
     @NonNull
     private Date taskEndDate;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private User owner;
+
     public Long getId() {
         return id;
     }
-    
 
-    public Task(String taskName, String taskDescription, Date taskEndDate) {
+    public Task(String taskName, String taskDescription, Date taskEndDate, User user) {
         this.taskName = taskName;
         this.taskDescription = taskDescription;
         this.taskEndDate = taskEndDate;
+        this.owner = user;
     }
 
     public String getTaskName() {

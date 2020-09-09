@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface TaskRepository extends CrudRepository<Task, Long> {
     Optional<Task> findByTaskName(String taskName);
-    Iterable<Task> findByTaskDescriptionLike(String taskDescription);
+    Iterable<Task> findByTaskDescriptionLikeAndOwner(String taskDescription, User owner);
 }

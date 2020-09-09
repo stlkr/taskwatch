@@ -7,8 +7,12 @@ import java.util.Optional;
 
 import com.xtech.taskwatch.model.Task;
 import com.xtech.taskwatch.model.TaskRepository;
+import com.xtech.taskwatch.model.User;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +27,16 @@ public class MainController {
     private SimpleDateFormat dateFmt = new SimpleDateFormat("MM/dd/yyyy");
 
     @GetMapping("/")
-    public String getTaskList(Map<String, Object> model, @RequestParam(required = false) String query) {
+    public String enterRoot() {
+        return "redirect:/list";
+    }
+
+    @GetMapping("/list")
+    public String getTaskList(
+        Map<String, Object> model, 
+        @RequestParam(required = false) String query,
+        @AuthenticationPrincipal User user
+    ) {
         Iterable<Task> tasks;
 
         String originalQuery = query;
@@ -34,7 +47,7 @@ public class MainController {
             query = String.format("%%%s%%", query);
         }
 
-        tasks = taskRepo.findByTaskDescriptionLike(query);
+        tasks = taskRepo.findByTaskDescriptionLikeAndOwner(query, user);
         
         model.put("tasks", tasks);
         model.put("query", originalQuery);
@@ -86,8 +99,15 @@ public class MainController {
     }
 
     @PostMapping("/edit/add")
-    public String addTask(@RequestParam String name, @RequestParam String descr, @RequestParam Date selDate) {
-        Task task = new Task(name, descr, selDate);
+    public String addTask(
+        @RequestParam String name, 
+        @RequestParam String descr, 
+        @RequestParam Date selDate) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User)authentication.getPrincipal();
+            
+        Task task = new Task(name, descr, selDate, user);
         taskRepo.save(task);
         return "redirect:/";
     }
