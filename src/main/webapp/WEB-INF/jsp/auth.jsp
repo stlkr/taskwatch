@@ -24,8 +24,8 @@
 
                 <div class="col-sm-12 my-auto">
                     <div class="card card-block w-25 mx-auto">
-
-                        <form action="/login/process" class="card-body">
+                        ${error}
+                        <form action="/loginnn" method="POST" class="card-body">
                             <h4 class="card-title text-center">Вход</h4>
                             <div class="form-group">
                                 <label for="username">Имя пользователя:</label>
