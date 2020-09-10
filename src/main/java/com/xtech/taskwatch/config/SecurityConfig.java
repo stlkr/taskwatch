@@ -24,6 +24,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private DataSource dataSource;
 
+    @Autowired
+    private UserDetailsService userDetailsSvc;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests().antMatchers("/register").permitAll().anyRequest().authenticated().and().formLogin()
@@ -36,11 +39,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
+            /*
             .jdbcAuthentication()
             .dataSource(dataSource)
             .passwordEncoder(NoOpPasswordEncoder.getInstance())
             .usersByUsernameQuery("select username, password, true from users where username=?")
             .authoritiesByUsernameQuery("select u.username, ur.user_roles from users u inner join user_roles ur on u.id = ur.user_id where u.username=?");
+            */
+            .userDetailsService(userDetailsSvc)
+            .passwordEncoder(NoOpPasswordEncoder.getInstance());
     }
 
     /*@Bean

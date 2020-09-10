@@ -39,18 +39,13 @@ public class MainController {
     ) {
         Iterable<Task> tasks;
 
-        String originalQuery = query;
-        
-        if (query == null)
-            query = "%";
-        else {
-            query = String.format("%%%s%%", query);
-        }
-
-        tasks = taskRepo.findByTaskDescriptionLikeAndOwner(query, user);
+        if (query != null)
+            tasks = taskRepo.findByTaskDescriptionContainsAndOwner(query, user);
+        else
+            tasks = taskRepo.findByOwner(user);
         
         model.put("tasks", tasks);
-        model.put("query", originalQuery);
+        model.put("query", query);
         return "index";
     }
 

@@ -24,8 +24,8 @@
                 <div class="col-sm-12 my-auto">
                     <div class="card card-block w-25 mx-auto">
                         <c:if test="${param.error != null}">
-                            <div class="d-flex justify-content-center">
-                                ${error}
+                            <div class="alert-danger d-flex justify-content-center">
+                                Ошибка: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />
                             </div>
                         </c:if>
                         <form action="/loginnn" method="POST" class="card-body">
