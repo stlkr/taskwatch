@@ -14,7 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="${pageContext.request.getContextPath()}/static/site.js"></script>
-    <title>Список задач</title>
+    <title>Список пользователей</title>
 
 </head>
 
@@ -22,26 +22,34 @@
     <jsp:include page="navbar.jsp" />
 
     <table class="table table-sm">
-        <c:if test="${not empty tasks}">
+        <c:if test="${not empty users}">
             <thead>
-                <th>Название</th>
-                <th>Описание</th>
-                <th>Дата окончания</th>
+                <th scope="col">Логин</th>
+                <th scope="col">Пароль</th>
+                <th scope="col">e-Mail</th>
+                <th scope="col">Ативен</th>
+                <th scope="col">Доступ</th>
             </thead>
-            <c:forEach var="task" items="${tasks}">
+            <c:forEach var="user" items="${users}">
                 <tr>
-                    <td>${task.taskName}</td>
-                    <td>${task.taskDescription}</td>
-                    <td>${task.taskEndDate}</td>
-                    <td><a href="${pageContext.request.getContextPath()}/edit/existing?id=${task.id}">Править</a></td>
-                    <td><a href="${pageContext.request.getContextPath()}/delete?id=${task.id}">Удалить</a></td>
+                    <td>${user.username}</td>
+                    <td>${user.password}</td>
+                    <td>${user.email}</td>
+                    <td>${user.enabled}</td>
+                    <td>${user.userRoles}</td>
+                    <td>
+                        <a href="${pageContext.request.getContextPath()}/admin/edit?id=${user.id}">Править</a>
+                    </td>
+                    <td>
+                        <c:if test="${user.username != 'admin'}">
+                            <a href="${pageContext.request.getContextPath()}/admin/delete?id=${user.id}">Удалить</a>
+                        </c:if>
+                    </td>
                 </tr>
             </c:forEach>
         </c:if>
-        <c:if test="${empty tasks}">
-            <div class="d-flex justify-content-center">
-                Нет задач в списке
-            </div>
+        <c:if test="${empty users}">
+            Нет зарегистрированных пользователей
         </c:if>
     </table>
 

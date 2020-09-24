@@ -22,7 +22,7 @@
     <link id="bsdp-css" href="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/css/bootstrap-datepicker3.min.css" rel="stylesheet">
     <script src="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
     <script src="https://unpkg.com/bootstrap-datepicker@1.9.0/dist/locales/bootstrap-datepicker.ru.min.js" charset="UTF-8"></script>
-
+    <script src="${pageContext.request.getContextPath()}/static/site.js"></script>
     <script>
         $(function () {
             $("#datepicker").datepicker();
@@ -34,10 +34,10 @@
     <jsp:include page="navbar.jsp" />
     <div class="container">
         <c:if test="${not empty name}">
-            <form action="/edit/update" method="post" class="form-group">
+            <form action="${pageContext.request.getContextPath()}/edit/update" method="post" class="form-group">
         </c:if>
         <c:if test="${empty name}">
-            <form action="/edit/add" method="post" class="form-group">
+            <form action="${pageContext.request.getContextPath()}/edit/add" method="post" class="form-group">
         </c:if>
 
         <input type="hidden" name="id" value="${id}" />

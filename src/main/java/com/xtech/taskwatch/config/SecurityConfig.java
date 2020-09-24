@@ -16,6 +16,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.access.expression.WebExpressionVoter;
 
 @Configuration
 @EnableWebSecurity
@@ -26,42 +27,50 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private UserDetailsService userDetailsSvc;
-
+    
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/register").permitAll().anyRequest().authenticated().and().formLogin()
-                .loginProcessingUrl("/loginnn").defaultSuccessUrl("/").usernameParameter("username")
-                .passwordParameter("password").loginPage("/loginn").permitAll()
+        http
+            .authorizeRequests()
+                .antMatchers("/register").permitAll()
+                .antMatchers("/admin/**").hasAuthority("ADMIN")
+                .anyRequest().authenticated()
+            .and()
+                .formLogin()
+                    .loginProcessingUrl("/loginnn")
+                    .defaultSuccessUrl("/")
+                    .usernameParameter("username")
+                    .passwordParameter("password")
+                .loginPage("/loginn").permitAll()
 
-                .and().logout().permitAll().and().csrf().disable();
+            .and()
+                .logout().permitAll()
+            .and()
+                .csrf().disable();
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth
-            /*
-            .jdbcAuthentication()
-            .dataSource(dataSource)
-            .passwordEncoder(NoOpPasswordEncoder.getInstance())
-            .usersByUsernameQuery("select username, password, true from users where username=?")
-            .authoritiesByUsernameQuery("select u.username, ur.user_roles from users u inner join user_roles ur on u.id = ur.user_id where u.username=?");
-            */
-            .userDetailsService(userDetailsSvc)
-            .passwordEncoder(NoOpPasswordEncoder.getInstance());
+                /*
+                 * .jdbcAuthentication() .dataSource(dataSource)
+                 * .passwordEncoder(NoOpPasswordEncoder.getInstance())
+                 * .usersByUsernameQuery("select username, password, true from users where username=?"
+                 * )
+                 * .authoritiesByUsernameQuery("select u.username, ur.user_roles from users u inner join user_roles ur on u.id = ur.user_id where u.username=?"
+                 * );
+                 */
+                .userDetailsService(userDetailsSvc).passwordEncoder(NoOpPasswordEncoder.getInstance());
     }
 
-    /*@Bean
-    @Override
-    public UserDetailsService userDetailsService() {
-        UserDetails user = 
-            User.withDefaultPasswordEncoder()
-                .username("u")
-                .password("p")
-                .roles("user")
-                .build();
+    /*
+     * @Bean()
+     * 
+     * @Override public UserDetailsService userDetailsService() { UserDetails user =
+     * User.withDefaultPasswordEncoder() .username("u") .password("p")
+     * .roles("user") .build();
+     * 
+     * return new InMemoryUserDetailsManager(user); }
+     */
 
-        return new InMemoryUserDetailsManager(user);
-    }*/
-
-    
 }

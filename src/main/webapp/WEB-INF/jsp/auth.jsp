@@ -22,13 +22,14 @@
         <div class="container  h-100">
             <div class="row h-100">
                 <div class="col-sm-12 my-auto">
-                    <div class="card card-block w-25 mx-auto">
+                    <div class="card card-block w-50 mx-auto">
                         <c:if test="${param.error != null}">
                             <div class="alert-danger d-flex justify-content-center">
-                                Ошибка: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />
+                                Ошибка:
+                                <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />
                             </div>
                         </c:if>
-                        <form action="/loginnn" method="POST" class="card-body">
+                        <form action="${pageContext.request.getContextPath()}/loginnn" method="POST" class="card-body">
                             <h4 class="card-title text-center">Вход</h4>
                             <div class="form-group">
                                 <label for="username">Имя пользователя:</label>
@@ -43,7 +44,7 @@
                             </div>
 
                             <div class="d-flex justify-content-center">
-                                <a href="/register">Регистрация</a>
+                                <a href="${pageContext.request.getContextPath()}/register">Регистрация</a>
                             </div>
                         </form>
                     </div>

@@ -5,11 +5,16 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpServletRequest;
+
 import com.xtech.taskwatch.model.Task;
 import com.xtech.taskwatch.model.TaskRepository;
 import com.xtech.taskwatch.model.User;
+import com.xtech.taskwatch.model.UserRole;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,7 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-public class MainController {
+public class MainController implements ErrorController {
 
     @Autowired
     private TaskRepository taskRepo;
@@ -32,41 +37,50 @@ public class MainController {
     }
 
     @GetMapping("/list")
-    public String getTaskList(
-        Map<String, Object> model, 
-        @RequestParam(required = false) String query,
-        @AuthenticationPrincipal User user
-    ) {
+    public String getTaskList(Map<String, Object> model, @RequestParam(required = false) String query,
+            @AuthenticationPrincipal User current_user) {
         Iterable<Task> tasks;
 
         if (query != null)
-            tasks = taskRepo.findByTaskDescriptionContainsAndOwner(query, user);
+            tasks = taskRepo.findByTaskDescriptionContainsAndOwner(query, current_user);
         else
-            tasks = taskRepo.findByOwner(user);
-        
+            tasks = taskRepo.findByOwner(current_user);
+
+        if (current_user.getUserRoles().contains(UserRole.ADMIN))
+            model.put("admin", "1");
+
+        model.put("session_user", current_user.getUsername());
         model.put("tasks", tasks);
         model.put("query", query);
         return "index";
     }
 
     @GetMapping("/edit/new")
-    public String getEdit(Map<String, Object> model) {
+    public String getEdit(Map<String, Object> model, @AuthenticationPrincipal User current_user) {
         model.put("selDate", dateFmt.format(new Date()));
+        if (current_user.getUserRoles().contains(UserRole.ADMIN))
+            model.put("admin", "1");
+
+        model.put("session_user", current_user.getUsername());
         return "edit";
     }
 
     @GetMapping("/edit/existing")
-    public String getEdit(Map<String, Object> model, @RequestParam Long id) {
+    public String getEdit(Map<String, Object> model, @RequestParam Long id, @AuthenticationPrincipal User current_user) {
         Optional<Task> task_opt = taskRepo.findById(id);
         if (task_opt.isPresent()) {
             Task task = task_opt.get();
             model.put("name", task.getTaskName());
             model.put("id", task.getId());
             model.put("descr", task.getTaskDescription());
+            if (current_user.getUserRoles().contains(UserRole.ADMIN))
+                model.put("admin", "1");
 
             String s = dateFmt.format(task.getTaskEndDate());
 
             model.put("selDate", s);
+
+            model.put("session_user", current_user.getUsername());
             return "edit";
         } else {
             model.put("errMsg", "Указанная задача не найдена!");
@@ -94,14 +108,11 @@ public class MainController {
     }
 
     @PostMapping("/edit/add")
-    public String addTask(
-        @RequestParam String name, 
-        @RequestParam String descr, 
-        @RequestParam Date selDate) {
+    public String addTask(@RequestParam String name, @RequestParam String descr, @RequestParam Date selDate) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User)authentication.getPrincipal();
-            
+        User user = (User) authentication.getPrincipal();
+
         Task task = new Task(name, descr, selDate, user);
         taskRepo.save(task);
         return "redirect:/";
@@ -117,7 +128,30 @@ public class MainController {
     }
 
     @GetMapping("/error")
-    public String GetError() {
-        return "redirect:hello";
+    public String error(Map<String, Object> model, HttpServletRequest request) {
+        Integer status = (Integer)request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
+
+        if (status != null) {
+            model.put("errCode", status.toString());
+            switch(status)
+            {
+            case 404:
+                model.put("errMsg", "Страница не найдена!");
+                break;
+            
+            
+            case 500:
+                model.put("errMsg", "Ошибка сервера!");
+                break;
+            }
+        }
+
+        return "err";
     }
+
+    @Override
+    public String getErrorPath() {
+        return "/error";
+    }
+    
 }
